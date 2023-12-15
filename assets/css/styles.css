@@ -1,3 +1,7 @@
-.container-fluid {
-    margin: 10px;
+img {
+    display: inline;
+}
+
+h2 {
+    display: inline;
 }
