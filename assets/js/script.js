@@ -1,46 +1,58 @@
 //TO DO
 // HOW TO FIX HTML / CSS SO BUTTON IS ON NEXT ROW AND SAME WIDTH AS INPUT BOX
-// Create a weather dashboard with form inputs.
-// When a user searches for a city they are presented with current and future conditions for that city and that city is added to the search history.
-// When a user views the current weather conditions for that city they are presented with:
-// The city name - city.name OR $("#search-input").val()
-// The date - list[0].dt_txt
-// An icon representation of weather conditions - list[0].weather[0].icon
-// The temperature - list[0].main.temp
-// The humidity - list[0].main.humidity is humidity in the current next 3 hr slot
-// The wind speed - list[0].wind.speed
-
-// When a user views future weather conditions for that city they are presented with a 5-day forecast that displays:
-// The date
-// An icon representation of weather conditions
-// The temperature
-// The humidity
+// FIX GAP BETWEEN THE 5 DAY FORECAST DIVS
 // When a user clicks on a city in the search history they are again presented with current and future conditions for that city.
-
-//list[0] is midnight, [1] is 3am, [2] is 6am etc. 5 day, 3 hour forecast data starting from next 3rd hour slot
 
 $("#search-button").on("click", function (event) {
     event.preventDefault();
     let cityName = $("#search-input").val();
-    let queryURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + cityName + "&appid=87838a9c0968d060b8db54b60caf3669&units=metric";
-    fetch(queryURL)
+    let currentWeatherURL = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=87838a9c0968d060b8db54b60caf3669&units=metric";
+    let forecastWeatherURL = "https://api.openweathermap.org/data/2.5/forecast?q=" + cityName + "&appid=87838a9c0968d060b8db54b60caf3669&units=metric";
+    fetch(currentWeatherURL)
+    .then(function (response) {
+        return response.json();
+    })
+    .then(function (data) {
+        let localUnixTime = data.dt + data.timezone // The UNIX time is based on GMT. The timezone data is the number of seconds away from GMT so needs to be added to the UNIX time to generate the correct local time
+        let currentTime = dayjs.unix(localUnixTime).format("dddd DD MMMM HH:mm")
+        let currentWeatherDiv = $("<div>").addClass("border border-secondary border-4 rounded-end-pill")
+        let currentWeatherIconCode = data.weather[0].icon
+        let currentWeatherIcon = $("<img>").attr("src", "https://openweathermap.org/img/wn/" + currentWeatherIconCode + "@2x.png")
+        let currentWeatherHeader = $("<h2>").text(cityName + ", " + data.sys.country + ", " + currentTime)
+        let currentWeather = $("<p>").attr("id", "description").text(data.weather[0].description)
+        // currentWeather = $("#description").text().charAt(0).toUpperCase() + currentWeather.text().slice(1) // Capitalises first letter
+        let currentTemp = $("<p>").text("Temperature: " + data.main.temp + " °C")
+        let currentWind = $("<p>").text("Wind Speed: " + data.wind.speed + " metres/second")
+        let currentHumidity = $("<p>").text("Humidity: " + data.main.humidity + "%")
+        currentWeatherDiv.append(currentWeatherHeader, currentWeatherIcon, currentWeather, currentTemp, currentWind, currentHumidity)
+        $("#today").append(currentWeatherDiv)
+    })
+    fetch(forecastWeatherURL)
     .then(function (response) {
         return response.json();
     })
     .then(function (data) {
         console.log(data)
-        let todayDate = dayjs(data.list[0].dt_txt).format('DD/MM/YYYY')
-        //The first entry is midnight of the next day, it isn't technically the current time - how do I do that?
-        //Check again tomorrow and see if it is still midnight the next day, or just set to the next 3rd hour slot
-        let todayDiv = $("<div>")
-        let weatherIcon = data.list[0].weather[0].icon
-        let todayIcon = $("<img>").attr("src", "https://openweathermap.org/img/wn/" + weatherIcon + "@2x.png")
-        let todayHeader = $("<h2>").text(cityName + ", " + data.city.country + " " + todayDate)
-        let todayTemp = $("<p>").text("Temperature: " + data.list[0].main.temp + " °C")
-        let todayWind = $("<p>").text("Wind Speed: " + data.list[0].wind.speed + " IN METRES/SEC")
-        let todayHumidity = $("<p>").text("Humidity: " + data.list[0].main.humidity + "%")
-        todayDiv.append(todayHeader, todayIcon, todayTemp, todayWind, todayHumidity)
-        $("#today").append(todayDiv)
-    });
-    // then do a for loop iterating through the entire array of the next 5 days worth of data
+        $("#forecast-header").text("5-day forecast:")
+        for (i = 7; i < data.list.length; i += 8) {  // ask Ivan why i + 8 didn't change the value of i so caused an infinite loop
+            // i initialised to 7 to get data for tomorrow and 8 is added to ensure the next day is added every time it loops through 
+            // Average might be just for the 3 hour period though, so read documentation for how to find out the daily average values.
+            let localUnixTime = data.list[i].dt
+            let forecastDate = dayjs.unix(localUnixTime).format("DD/MM/YY")
+            let forecastWeatherDiv = $("<div>").addClass("col-2 me-4 border border-secondary border-4 rounded")
+            // Can't ever seem to get gaps working in Bootstrap so used mx-auto instead but it sends it out of alignment with the header
+            let forecastWeatherIconCode = data.list[i].weather[0].icon
+            let forecastWeatherIcon = $("<img>").addClass("mx-auto d-block").attr("src", "https://openweathermap.org/img/wn/" + forecastWeatherIconCode + "@2x.png")
+            let forecastWeatherHeader = $("<h4>").addClass("text-center").text(forecastDate)
+            let forecastWeather = $("<p>").text(data.list[i].weather[0].description)
+            let forecastTemp = $("<p>").text("Temp: " + data.list[i].main.temp + " °C")
+            let forecastWind = $("<p>").text("Wind: " + data.list[i].wind.speed + " m/s")
+            let forecastHumidity = $("<p>").text("Humidity: " + data.list[i].main.humidity + "%")
+            forecastWeatherDiv.append(forecastWeatherHeader, forecastWeatherIcon, forecastWeather, forecastTemp, forecastWind, forecastHumidity)
+            $("#forecast").append(forecastWeatherDiv)
+        }
+    })
+    localStorage.setItem
 })
+
+// NEXT HOW DO I SAVE IT TO LOCAL STORAGE IN THE HISTORY DIV WHEN THE SEARCH BUTTON IS CLICKED AGAIN
