@@ -14,6 +14,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
 </head>
 
 <body>
+
   <header class="container-fluid text-center text-white bg-dark p-2 weather-header">
     <div class="p-5 mb-4 mt-4 rounded-3" style="background-color: #20315A ; color: white;">
       <div class="container-fluid py-5">
@@ -31,14 +32,17 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         <h2 id="form-heading" class="h3 form-label">
           Search for a City:
         </h2>
-        <form id="search-form" class="py-3 form">
+        <form id="search-form" class="pt-3 form">
           <div class="form-inline form-group">
-            <div class="input-group">
+            <div class="col-3 input-group d-grid">
               <input class="form-input weather-search" type="text" id="search-input" placeholder="London"
                 aria-labelledby="form-heading" aria-controls="today forecast" />
-              <div class="input-group-append my-3">
+              <div class="d-grid input-group-append mt-3">
                 <button type="submit" class="btn btn-dark search-button" id="search-button" aria-label="submit search">
                   Search
+                </button>
+                <button type="button" class="btn btn-dark search-button mt-2" id="clear">
+                  Clear history
                 </button>
                 <hr class="hr weather-hr" />
               </div>
@@ -48,7 +52,7 @@ href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         <div class="list-group" id="history"></div>
       </aside>
 
-      <div class="container col-9 g-1 pb-3">
+      <div class="container col-9 pb-3 forecast">
         <section id="today" class="row mt-3 p-1" role="region" aria-live="polite"></section>
         <h2 id="forecast-header" class="row mt-3"></h2>
         <section id="forecast" class="row mt-3" role="region" aria-live="polite"></section>

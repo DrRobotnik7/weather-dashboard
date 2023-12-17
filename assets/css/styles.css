@@ -6,6 +6,6 @@ h2 {
     display: inline;
 }
 
-#description:first-letter {
+.description:first-letter {
     text-transform: uppercase;
 }
