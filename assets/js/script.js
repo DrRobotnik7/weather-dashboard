@@ -5,16 +5,21 @@
 // if (data.message) {
 //         alert("City not found")
 //     }
-// - WHEN REFRESH IS CLICKED, THE HISTORY DOESN'T DISAPPEAR
 // - SHOW AVERAGE TEMPS, NOT JUST THE TEMPERATURE FOR THAT 3 HOUR PERIOD ON THAT DAY
 // - THE NUMBER OF CITIES GETS INFINITELY LONG - REACH A POINT WHERE THE  OLDEST AUTOMATICALLY DELETES
-// - DON'T APPEND HISTORY BUTTON IF IT ALREADY EXISTS
+
+for (let key in localStorage){
+    if(key.indexOf(":forecast") !== -1) {
+        printButtonToHistory(key.replace(":forecast", ""))
+    }
+ }
 
 $("#search-button").on("click", function (event) {
     event.preventDefault();
     let cityName = $("#search-input").val();
     let currentWeatherURL = "https://api.openweathermap.org/data/2.5/weather?appid=87838a9c0968d060b8db54b60caf3669&units=metric&q=" + cityName;
     let forecastWeatherURL = "https://api.openweathermap.org/data/2.5/forecast?appid=87838a9c0968d060b8db54b60caf3669&units=metricc&q=" + cityName;
+    let cityDoesNotExistInLocalstorage = localStorage.getItem(cityName + ":forecast") === null;
     fetch(currentWeatherURL)
     .then(function (response) {
         return response.json()
@@ -22,20 +27,31 @@ $("#search-button").on("click", function (event) {
     .then(function (data) {
         localStorage.setItem(cityName + ":currentWeather", JSON.stringify(data))
     })
+
     fetch(forecastWeatherURL)
     .then(function (response) {
         return response.json();
     })
+
     .then(function (data) {
         localStorage.setItem(cityName + ":forecast", JSON.stringify(data))
-
-        printDataToScreen(cityName);
-        
-        let button = $("<button>").addClass("mb-3").text(cityName).on("click", function() {
-            printDataToScreen(cityName)
-        })
-        $("#history").append(button)
     })
+
+    printDataToScreen(cityName);
+    if(cityDoesNotExistInLocalstorage)
+        printButtonToHistory(cityName);
+})
+
+function printButtonToHistory(cityName) {
+    let button = $("<button>").addClass("mb-3").text(cityName).on("click", function() {
+        printDataToScreen(cityName)
+    })
+    $("#history").append(button)
+}
+
+$("#clear").on("click", function() {
+    localStorage.clear()
+    $(".forecast").html("")
 })
 
 function printDataToScreen(cityName){
@@ -77,8 +93,3 @@ function printForecast(data) {
         $("#forecast").append(forecastWeatherDiv)
     }
 }
-
-$("#clear").on("click", function() {
-    localStorage.clear()
-    $(".forecast").html("")
-})
