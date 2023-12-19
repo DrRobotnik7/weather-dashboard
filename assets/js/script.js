@@ -40,9 +40,7 @@ $("#search-button").on("click", function (event) {
         if(cityDoesNotExistInLocalstorage) {
             printButtonToHistory(cityName);
         }
-
     })
-
 })
 
 // This function first codes the logic for the search history button i.e. when it is clicked the data is printed to the screen. It then appends it to the search history area of the web page
