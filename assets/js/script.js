@@ -1,4 +1,4 @@
-// TO DO - readme and comment the code
+// TO DO - readme and comment the code - do i have to click refresh now to get search history to update?
 
 // WAYS TO IMPROVE
 // - VALIDATION - IF USER DOESN'T ENTER A CITY A MODAL / ALERT SAYS "CITY NOT FOUND"  THE BELOW WORKS BUT BREAKS EVERYTHING IF IT PUT IT IN
@@ -9,7 +9,7 @@ for (let key in localStorage){
     if(key.indexOf(":forecast") !== -1) {
         printButtonToHistory(key.replace(":forecast", "")) // replaces the forecast with an empty string, so the key is now just the city name
     }
- }
+}
 
 $("#search-button").on("click", function (event) {
     event.preventDefault();
