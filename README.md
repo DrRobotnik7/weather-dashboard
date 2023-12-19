@@ -17,7 +17,7 @@ Click on the URL and you will be navigated to the web application in your defaul
 
 ## Usage
 
-URL: https://drrobotnik7.github.io/bootstrap-portfolio/
+URL: https://drrobotnik7.github.io/weather-dashboard/
 
 Users can type a city into the search box to be shown the current weather and a 5 day forecast. If the user would like to specify a country they can e.g. if searching for Bristol, the result is the city in the US. You can type in Bristol, UK instead.
 

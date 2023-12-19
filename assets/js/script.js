@@ -1,28 +1,30 @@
-// TO DO - readme and comment the code - do i have to click refresh now to get search history to update?
+// TO DO - do i have to click refresh now to get search history to update? line 62 does this need to have cityName as a first param? I thought get functions only needed the key
 
 // WAYS TO IMPROVE
 // - VALIDATION - IF USER DOESN'T ENTER A CITY A MODAL / ALERT SAYS "CITY NOT FOUND"  THE BELOW WORKS BUT BREAKS EVERYTHING IF IT PUT IT IN
 // - SHOW AVERAGE TEMPS, NOT JUST THE TEMPERATURE FOR THAT 3 HOUR PERIOD ON THAT DAY
 // - THE NUMBER OF CITIES GETS INFINITELY LONG - REACH A POINT WHERE THE  OLDEST AUTOMATICALLY DELETES
 
+// This code block ensures search history buttons are recreated when the page refreshes. It loops through the local storage and targets all keys with :forecast in the key name, it then prints the button
 for (let key in localStorage){
     if(key.indexOf(":forecast") !== -1) {
         printButtonToHistory(key.replace(":forecast", "")) // replaces the forecast with an empty string, so the key is now just the city name
     }
 }
 
+// This code block is the logic for the search button. API data is fetched, the current forecast and 5 day-forecast are printed and a search history button is created if that city hasn't already been searched for
 $("#search-button").on("click", function (event) {
     event.preventDefault();
     let cityName = $("#search-input").val();
     let currentWeatherURL = "https://api.openweathermap.org/data/2.5/weather?appid=87838a9c0968d060b8db54b60caf3669&units=metric&q=" + cityName;
     let forecastWeatherURL = "https://api.openweathermap.org/data/2.5/forecast?appid=87838a9c0968d060b8db54b60caf3669&units=metricc&q=" + cityName;
-    let cityDoesNotExistInLocalstorage = localStorage.getItem(cityName + ":forecast") === null;
+    let cityDoesNotExistInLocalstorage = localStorage.getItem(cityName + ":forecast") === null; // A boolean that assigns true if the city doesn't exist in local storage
     fetch(currentWeatherURL)
     .then(function (response) {
         return response.json()
     })
     .then(function (data) {
-        localStorage.setItem(cityName + ":currentWeather", JSON.stringify(data))
+        localStorage.setItem(cityName + ":currentWeather", JSON.stringify(data)) // Saves the searched citie's current weather to local storage
     })
 
     fetch(forecastWeatherURL)
@@ -31,14 +33,17 @@ $("#search-button").on("click", function (event) {
     })
 
     .then(function (data) {
-        localStorage.setItem(cityName + ":forecast", JSON.stringify(data))
+        localStorage.setItem(cityName + ":forecast", JSON.stringify(data)) // Saves the searched citie's 5-day forecast to local storage
     })
-
-    printDataToScreen(cityName);
+    // This code block calls functions created in the logic below, essentially printing all data to the screen and creating search history buttons if they don't already exist
+    .then(function (cityName) {;
+    printDataToScreen(cityName)
     if(cityDoesNotExistInLocalstorage)
         printButtonToHistory(cityName);
+    })
 })
 
+// This function first codes the logic for the search history button i.e. when it is clicked the data is printed to the screen. It then appends it to the search history area of the web page
 function printButtonToHistory(cityName) {
     let button = $("<button>").addClass("mb-3").text(cityName).on("click", function() {
         printDataToScreen(cityName)
@@ -46,16 +51,19 @@ function printButtonToHistory(cityName) {
     $("#history").append(button)
 }
 
+// This creates the clear history button, which clears the local storage and deletes all weather information on the screen if clicked 
 $("#clear").on("click", function() {
     localStorage.clear()
     $(".forecast").html("")
 })
 
+// This function is getting data from the local storage and printing it to the screen, using the functions created below it
 function printDataToScreen(cityName){
-    printCurrentWeather(cityName, JSON.parse(localStorage.getItem(cityName + ":currentWeather")))
+    printCurrentWeather(cityName, JSON.parse(localStorage.getItem(cityName + ":currentWeather"))) // Does this need to have cityName as the first param?
     printForecast(JSON.parse(localStorage.getItem(cityName + ":forecast")))
 }
 
+// This function prints the current weather to the screen and creates the HTML dynamically
 function printCurrentWeather(cityName, data) {
     let localUnixTime = data.dt + data.timezone // The UNIX time is based on GMT. The timezone data is the number of seconds away from GMT so needs to be added to the UNIX time to generate the correct local time
     let currentTime = dayjs.unix(localUnixTime).format("dddd DD MMMM HH:mm")
@@ -70,12 +78,13 @@ function printCurrentWeather(cityName, data) {
     currentWeatherDiv.append(currentWeatherHeader, currentWeatherIcon, currentWeather, currentTemp, currentWind, currentHumidity)
     $("#today").html(currentWeatherDiv)
 }
+
+// This function prints the 5-day forecast to the screen and creates the HTML dynamically
 function printForecast(data) {
     $("#forecast").html("")
     $("#forecast-header").text("5-day forecast:")
     for (i = 7; i < data.list.length; i += 8) {
-        // i initialised to 7 to get data for tomorrow and 8 is added to ensure the next day is added every time it loops through 
-        // Average might be just for the 3 hour period though, so read documentation for how to find out the daily average values.
+        // i initialised to 7 to get the 7th key value pair in the array, this is tomorrow's data. Then 8 is added to ensure the next set of data grabbed is 24 hours later (8 x 3hrs = 24hrs)
         let forecastWeatherDiv = $("<div>").addClass("col-2 me-4 border border-secondary border-4 rounded")
         let localUnixTime = data.list[i].dt
         let forecastDate = dayjs.unix(localUnixTime).format("DD/MM/YY")
