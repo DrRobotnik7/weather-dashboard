@@ -1,5 +1,3 @@
-// TO DO - do i have to click refresh now to get search history to update? line 62 does this need to have cityName as a first param? I thought get functions only needed the key
-
 // WAYS TO IMPROVE
 // - VALIDATION - IF USER DOESN'T ENTER A CITY A MODAL / ALERT SAYS "CITY NOT FOUND"  THE BELOW WORKS BUT BREAKS EVERYTHING IF IT PUT IT IN
 // - SHOW AVERAGE TEMPS, NOT JUST THE TEMPERATURE FOR THAT 3 HOUR PERIOD ON THAT DAY
@@ -33,14 +31,18 @@ $("#search-button").on("click", function (event) {
     })
 
     .then(function (data) {
+        console.log(data)
         localStorage.setItem(cityName + ":forecast", JSON.stringify(data)) // Saves the searched citie's 5-day forecast to local storage
     })
     // This code block calls functions created in the logic below, essentially printing all data to the screen and creating search history buttons if they don't already exist
-    .then(function (cityName) {;
-    printDataToScreen(cityName)
-    if(cityDoesNotExistInLocalstorage)
-        printButtonToHistory(cityName);
+    .then(function () {
+        printDataToScreen(cityName)
+        if(cityDoesNotExistInLocalstorage) {
+            printButtonToHistory(cityName);
+        }
+
     })
+
 })
 
 // This function first codes the logic for the search history button i.e. when it is clicked the data is printed to the screen. It then appends it to the search history area of the web page
@@ -55,11 +57,12 @@ function printButtonToHistory(cityName) {
 $("#clear").on("click", function() {
     localStorage.clear()
     $(".forecast").html("")
+    $("#history").html("")
 })
 
 // This function is getting data from the local storage and printing it to the screen, using the functions created below it
 function printDataToScreen(cityName){
-    printCurrentWeather(cityName, JSON.parse(localStorage.getItem(cityName + ":currentWeather"))) // Does this need to have cityName as the first param?
+    printCurrentWeather(cityName, JSON.parse(localStorage.getItem(cityName + ":currentWeather")))
     printForecast(JSON.parse(localStorage.getItem(cityName + ":forecast")))
 }
 
@@ -83,6 +86,7 @@ function printCurrentWeather(cityName, data) {
 function printForecast(data) {
     $("#forecast").html("")
     $("#forecast-header").text("5-day forecast:")
+    console.log(data.list)
     for (i = 7; i < data.list.length; i += 8) {
         // i initialised to 7 to get the 7th key value pair in the array, this is tomorrow's data. Then 8 is added to ensure the next set of data grabbed is 24 hours later (8 x 3hrs = 24hrs)
         let forecastWeatherDiv = $("<div>").addClass("col-2 me-4 border border-secondary border-4 rounded")
